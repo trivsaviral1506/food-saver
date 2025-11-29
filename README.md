@@ -1,206 +1,185 @@
-# 🌱 FoodSaver
+# FoodSaver Backend API
 
-> A complete full-stack platform connecting food donors with receivers to reduce food waste.
+Complete Node.js/Express backend for the FoodSaver food waste reduction platform.
 
-## ⚡ Quick Start
+## 🚀 Features
 
-**First time?** → Read **[START_HERE.md](START_HERE.md)** for 3-minute setup!
+- **Authentication**: JWT, Google OAuth, GitHub OAuth
+- **Food Listings**: CRUD operations with image upload to Cloudinary
+- **Claims System**: QR code-based food claiming and verification
+- **Real-time Notifications**: Socket.io for live updates
+- **Geolocation**: MongoDB geospatial queries for nearby food
+- **Image Management**: Cloudinary integration
 
-```bash
-# Terminal 1 - Backend
-cd server && npm install && npm run dev
+## 📋 Prerequisites
 
-# Terminal 2 - Frontend  
-cd client && npm install && npm run dev
-```
+- Node.js 16+
+- MongoDB (local or Atlas)
+- Cloudinary account
+- Google OAuth credentials (optional)
+- GitHub OAuth credentials (optional)
 
-Open: **http://localhost:5173**
+## 🛠️ Setup
 
----
-
-## 🎯 What This Is
-
-**FoodSaver** connects:
-- **Donors** (restaurants, supermarkets, bakeries) who have surplus food
-- **Receivers** (individuals, NGOs) who need food
-
-**Key Features:**
-- 🔐 Multiple auth options (Email, Google, GitHub)
-- 📸 Image uploads via Cloudinary
-- 🗺️ Interactive Mapbox maps
-- 📱 QR code verification
-- 🔔 Real-time Socket.io notifications
-- 🌍 Geolocation-based search
-
----
-
-### Quick Start (5 Minutes)
-
-#### Prerequisites
-
-- Node.js **16+**
-- MongoDB (local or [MongoDB Atlas](https://mongodb.com/cloud/atlas))
-- [Cloudinary account](https://cloudinary.com) (free tier)
-- [Mapbox account](https://mapbox.com) (free tier)
-
-#### Step 1: Backend Setup
+### 1. Install Dependencies
 
 ```bash
-cd server
 npm install
-
-# Create .env file (copy from config.example.env)
-# Add your MongoDB URI, JWT secret, and Cloudinary credentials
-
-npm run dev
 ```
 
-Backend runs at `http://localhost:5000`
+### 2. Environment Variables
 
-#### Step 2: Frontend Setup
+Copy `config.example.env` to `.env` and fill in your credentials:
 
 ```bash
-cd client
-npm install
-
-# Create .env file (copy from env.example)
-# Add: VITE_API_URL=http://localhost:5000
-# Add: VITE_MAPBOX_TOKEN=your-token
-
-npm run dev
+cp config.example.env .env
 ```
 
-Frontend runs at `http://localhost:5173`
+**Required variables:**
+- `MONGODB_URI` - Your MongoDB connection string
+- `JWT_SECRET` - Random secret key for JWT tokens
+- `CLOUDINARY_*` - Your Cloudinary credentials
 
-#### Step 3: Test the App
+**Optional (for OAuth):**
+- `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET`
+- `GITHUB_CLIENT_ID` & `GITHUB_CLIENT_SECRET`
 
-1. Open `http://localhost:5173`
-2. Click "Get Started" → Register
-3. Access dashboard
-4. Try posting food (donor) or browsing food (receiver)
+### 3. Start Server
 
----
-
-### Complete Feature List
-
-#### ✅ Core Features
-- **Multi-Auth System**: Email/password, Google OAuth, GitHub OAuth
-- **Food Donation**: Post surplus food with images, location, dietary info
-- **Food Discovery**: Browse, search, and filter available food
-- **Interactive Map**: Mapbox integration showing real food locations
-- **Smart Claiming**: QR code-based pickup verification system
-- **Real-time Updates**: Socket.io notifications for claims, pickups
-- **Image Management**: Cloudinary-powered image uploads
-- **Geolocation**: Find food within custom radius
-
-#### Tech Stack
-
-**Frontend:**
-- React 18 + TypeScript
-- React Router for navigation
-- Zustand for state management
-- Mapbox GL for maps
-- Three.js for 3D graphics
-- Framer Motion for animations
-- TailwindCSS for styling
-- Socket.io client for real-time
-- Axios for API calls
-
-**Backend:**
-- Node.js + Express
-- MongoDB + Mongoose
-- Passport.js (JWT, Google, GitHub)
-- Socket.io for WebSocket
-- Cloudinary for images
-- QR code generation
-- Bcrypt for passwords
-- Multer for file uploads
-
----
-
-### Application Pages
-
-#### Landing Page
-- 3D hero with floating food objects
-- About section with mission cards
-- Animated statistics
-- Features showcase
-- How it works flow
-- Call-to-action
-
-#### User Features
-**Donors** (Restaurants, Stores):
-- Post food listings with images
-- Manage active donations
-- Verify pickups with QR codes
-- Track impact statistics
-
-**Receivers** (Individuals, NGOs):
-- Browse available food
-- Search by location & dietary needs
-- Claim food items
-- Get QR codes for pickup
-- Track claim history
-
-**Everyone**:
-- Interactive map view
-- Real-time notifications
-- Profile management
-- OAuth login (Google, GitHub)
-
----
-
-### Deployment
-
-**Frontend (Vercel/Netlify)**:
 ```bash
-cd client
-npm run build
-# Deploy 'dist' folder
-# Set build command: npm run build
-# Set output directory: dist
+# Development
+npm run dev
+
+# Production
+npm start
 ```
 
-**Backend (Render/Railway)**:
-- Deploy `server` folder
-- Add all environment variables
-- Use MongoDB Atlas for production
+Server runs on `http://localhost:5000`
 
----
+## 📚 API Endpoints
 
-### Troubleshooting
+### Authentication (`/api/auth`)
+- `POST /register` - Register new user
+- `POST /login` - Login with email/password
+- `GET /me` - Get current user (protected)
+- `PUT /profile` - Update profile (protected)
+- `GET /google` - Google OAuth login
+- `GET /github` - GitHub OAuth login
 
-**Backend**:
-- MongoDB error → Check `MONGODB_URI` in `.env`
-- Cloudinary fails → Verify 3 credentials (cloud name, api key, api secret)
-- OAuth issues → Callback URLs must match exactly
+### Food Listings (`/api/listings`)
+- `GET /` - Get all listings (with filters)
+- `GET /:id` - Get single listing
+- `POST /` - Create listing (protected, with images)
+- `PUT /:id` - Update listing (protected)
+- `DELETE /:id` - Delete listing (protected)
+- `GET /my/listings` - Get my listings (protected)
 
-**Frontend**:
-- Blank page → Check browser console for errors, ensure React 18.2.0 is installed
-- API errors → Ensure backend running on port 5000
-- Map empty → Add valid `VITE_MAPBOX_TOKEN`
+### Claims (`/api/claims`)
+- `POST /` - Create claim (protected)
+- `GET /my-claims` - Get my claims as receiver (protected)
+- `GET /received` - Get claims on my listings as donor (protected)
+- `GET /:id` - Get claim details (protected)
+- `PUT /:id/confirm` - Confirm claim (donor, protected)
+- `POST /:id/verify` - Verify pickup with code (donor, protected)
+- `PUT /:id/cancel` - Cancel claim (protected)
+- `POST /:id/rate` - Rate completed claim (protected)
 
-**General**:
-- CORS errors → Check `CLIENT_URL` in server `.env`
-- Socket not connecting → Verify Socket.io ports match
+### Notifications (`/api/notifications`)
+- `GET /` - Get notifications (protected)
+- `GET /unread-count` - Get unread count (protected)
+- `PUT /:id/read` - Mark as read (protected)
+- `PUT /read-all` - Mark all as read (protected)
+- `DELETE /:id` - Delete notification (protected)
 
----
+## 🔌 Socket.io Events
 
-## 📚 Documentation
+### Client → Server
+- `join-room` - Join user's notification room
 
-- **[START_HERE.md](START_HERE.md)** ⭐ Start here for quick setup!
-- **[SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md)** - Detailed setup guide
-- **[FEATURES.md](FEATURES.md)** - Complete feature list
-- **[server/README.md](server/README.md)** - API documentation
+### Server → Client
+- `new-listing` - New food listing posted nearby
+- `new-claim` - Someone claimed your listing
+- `claim-confirmed` - Your claim was confirmed
+- `claim-completed` - Pickup was verified
+- `claim-cancelled` - Claim was cancelled
 
----
+## 📦 Project Structure
 
-## 🎓 Tech Stack Summary
+```
+server/
+├── config/
+│   ├── database.js         # MongoDB connection
+│   ├── cloudinary.js       # Cloudinary setup
+│   └── passport.js         # OAuth strategies
+├── controllers/
+│   ├── authController.js   # Auth logic
+│   ├── foodListingController.js
+│   ├── claimController.js
+│   └── notificationController.js
+├── middleware/
+│   ├── auth.js             # JWT protection
+│   ├── upload.js           # Multer config
+│   └── error.js            # Error handlers
+├── models/
+│   ├── User.js
+│   ├── FoodListing.js
+│   ├── Claim.js
+│   └── Notification.js
+├── routes/
+│   ├── authRoutes.js
+│   ├── foodListingRoutes.js
+│   ├── claimRoutes.js
+│   └── notificationRoutes.js
+├── utils/
+│   ├── qrcode.js           # QR code generation
+│   └── cloudinaryUpload.js # Image upload helpers
+├── index.js                # Main server file
+└── package.json
+```
 
-**Frontend**: React, TypeScript, Vite, Router, Zustand, Mapbox, Three.js, Framer Motion, Tailwind
+## 🧪 Testing API
 
-**Backend**: Node.js, Express, MongoDB, Passport, Socket.io, Cloudinary, JWT
+Use tools like Postman or Thunder Client:
 
----
+1. **Register**: `POST /api/auth/register`
+   ```json
+   {
+     "name": "John Doe",
+     "email": "john@example.com",
+     "password": "password123",
+     "role": "both"
+   }
+   ```
 
-**Built with ❤️ to reduce food waste and build a sustainable future**
+2. **Login**: `POST /api/auth/login`
+   ```json
+   {
+     "email": "john@example.com",
+     "password": "password123"
+   }
+   ```
+   Save the returned `token`.
+
+3. **Create Listing**: `POST /api/listings`
+   - Add `Authorization: Bearer YOUR_TOKEN` header
+   - Use form-data with images
+
+## 🔐 Security
+
+- Passwords hashed with bcrypt
+- JWT tokens for stateless auth
+- Protected routes with middleware
+- Input validation
+- CORS configured
+
+## 📝 Notes
+
+- Images are auto-optimized by Cloudinary
+- Listings auto-expire based on `expiresAt`
+- Notifications auto-delete after 30 days
+- Geospatial queries use MongoDB 2dsphere indexes
+
+## 🤝 Contributing
+
+This is the backend for FoodSaver. The frontend is in the `../client` directory.
+
